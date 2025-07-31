@@ -1,7 +1,7 @@
-# MCP Client/Server
+# MCP-HUB
+MCP-HUB is a powerful multi-server MCP client that allows you to seamlessly interact with various AI services and tools through a single chat interface. 
+It combines the power of OpenAI's language models with multiple MCP servers, providing access to Notion, GitHub, and custom tools all in one place.
 
-This is a comprehensive **Model Context Protocol (MCP)** implementation with multi-server support.  
-The project includes both a local MCP server with 18 Notion API tools and a client that can connect to multiple external MCP servers simultaneously (Notion, GitHub, local) with built-in configurations.
 
 ## Goals
 - Understand MCP architecture
@@ -60,10 +60,9 @@ mcp/
 │       ├── interface.ts  # TypeScript interfaces
 │       └── tools.ts      # 18 Notion API tools with schema conversion
 ├── build/                # Compiled JavaScript output
-├── mcp-config.example.json # Example configuration for external servers
 ├── .env                  # Environment variables (Notion, OpenAI, GitHub)
-├── .gitignore           # Git ignore rules
+├── .gitignore            # Git ignore rules
 ├── package.json          # Project configuration
 ├── tsconfig.json         # TypeScript configuration
-└── README.md            # This file
+└── README.md             # This file
 ```
