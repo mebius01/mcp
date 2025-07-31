@@ -52,14 +52,13 @@ mcp/
 │   ├── client/           # MCP client implementation
 │   │   ├── client.ts     # Main client class with OpenAI integration
 │   │   └── index.ts      # Interactive CLI interface
-│   ├── common.ts         # Shared schemas and utilities
-│   ├── execute.ts        # Notion API execution layer
-│   ├── interface.ts      # TypeScript interfaces
-│   ├── schemas.ts        # Tool schema definitions
-│   ├── server.ts         # MCP server implementation
-│   └── tool.ts           # Legacy tool definitions
+│   └── server/           # MCP server implementation
+│       ├── index.ts      # Main server entry point
+│       ├── interface.ts  # TypeScript interfaces
+│       └── tools.ts      # Tool definitions with schema conversion
 ├── build/                # Compiled JavaScript output
 ├── .env                  # Environment variables
+├── .gitignore           # Git ignore rules
 ├── package.json          # Project configuration
 ├── tsconfig.json         # TypeScript configuration
 └── README.md            # This file
