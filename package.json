@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc && chmod +x build/*.js || true",
-    "start": "node build/client/index.js build/server/index.js"
+    "build": "tsc && find build -type f -name '*.js' -exec chmod +x {} \\;",
+    "start": "node build/client/index.js"
   },
   "repository": {
     "type": "git",
