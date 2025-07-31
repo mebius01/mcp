@@ -12,133 +12,138 @@ if (!OPENAI_API_KEY) {
   throw new Error("OPENAI_API_KEY is not set");
 }
 
+type MCPServerConfig = {
+  command: string;
+  args: string[];
+  env?: Record<string, string>;
+};
+
 export class MCPClient {
-  private mcp: Client;
   private openai: OpenAI;
-  private transport: StdioClientTransport | null = null;
-  private tools: ChatCompletionTool[] = [];
+  private clients: Record<
+    string,
+    {
+      mcp: Client;
+      transport: StdioClientTransport;
+      tools: ChatCompletionTool[];
+    }
+  > = {};
 
   constructor() {
     this.openai = new OpenAI({ apiKey: OPENAI_API_KEY });
-    this.mcp = new Client({ name: "mcp-client-cli", version: "1.0.0" });
   }
 
-  async connectToServer(serverScriptPath: string): Promise<void> {
-    const isJs = serverScriptPath.endsWith(".js");
-
-    if (!isJs) {
-      throw new Error("Server script must be a .js file");
-    }
-
-    const command = process.execPath;
-
-    try {
-      this.transport = new StdioClientTransport({
-        command,
-        args: [serverScriptPath],
+  async connectAll(configs: Record<string, MCPServerConfig>) {
+    for (const [name, cfg] of Object.entries(configs)) {
+      const transport = new StdioClientTransport({
+        command: cfg.command,
+        args: cfg.args,
+        env: cfg.env,
       });
 
-      await this.mcp.connect(this.transport);
+      const mcp = new Client({ name: `mcp-${name}`, version: "1.0.0" });
 
-      const { tools } = await this.mcp.listTools();
+      await mcp.connect(transport);
 
-      this.tools = tools.map(({ name, description, inputSchema }) => ({
-        type: "function",
-        function: {
-          name,
-          description,
-          parameters: inputSchema,
-        },
-      }));
+      const { tools } = await mcp.listTools();
 
-      console.log(
-        "✅ Connected to server with tools:",
-        this.tools.map(({ function: { name } }) => name).join(", ")
+      const formattedTools: ChatCompletionTool[] = tools.map(
+        ({ name, description, inputSchema }) => ({
+          type: "function",
+          function: {
+            name,
+            description,
+            parameters: inputSchema,
+          },
+        })
       );
-    } catch (error) {
-      console.error("❌ Failed to connect to MCP server:", error);
-      throw error;
+
+      this.clients[name] = { mcp, transport, tools: formattedTools };
+
+      console.log(`✅ Connected to "${name}" with tools: ${formattedTools.map(t => t.function.name).join(", ")}`);
+    }
+  }
+
+  private getAllTools(): ChatCompletionTool[] {
+    return Object.values(this.clients).flatMap(({ tools }) => tools);
+  }
+
+  private getClientByToolName(toolName: string): Client | undefined {
+    for (const { mcp, tools } of Object.values(this.clients)) {
+      if (tools.some(t => t.function.name === toolName)) return mcp;
     }
   }
 
   async processQuery(query: string): Promise<string> {
     try {
-      console.log(`🔍 Processing query: "${query}"`);
-
       const messages: ChatCompletionMessageParam[] = [
-        {
-          role: "user",
-          content: query,
-        },
+        { role: "user", content: query },
       ];
 
-      console.log(`🤖 Calling OpenAI with ${this.tools.length} tools available`);
+      const tools = this.getAllTools();
+
+      console.log(`🤖 Sending query to OpenAI with ${tools.length} tools`);
 
       const response = await this.openai.chat.completions.create({
-        model: "gpt-4o", // або іншу модель
+        model: "gpt-4o",
         messages,
-        tools: this.tools,
+        tools,
         tool_choice: "auto",
       });
 
-      console.log(`✅ OpenAI response received`);
-      const finalText: string[] = [];
-
       const choice = response.choices[0];
       const toolCall = choice.message.tool_calls?.[0];
+      const finalText: string[] = [];
 
       if (toolCall) {
-        console.log(`🔧 Tool call detected: ${toolCall.function.name}`);
         const toolName = toolCall.function.name;
-        const toolArgs = JSON.parse(toolCall.function.arguments || "{}");
+        const args = JSON.parse(toolCall.function.arguments || "{}");
 
-        console.log(`📥 Tool args:`, toolArgs);
+        console.log(`🔧 Tool call detected: ${toolName} with args:`, args);
 
-        try {
-          const result = await this.mcp.callTool({
-            name: toolName,
-            arguments: toolArgs,
-          });
-
-          console.log(`✅ Tool call successful`);
-
-          finalText.push(
-            `[Calling tool ${toolName} with args ${JSON.stringify(toolArgs)}]`
-          );
-
-          messages.push(
-            choice.message,
-            {
-              role: "tool",
-              tool_call_id: toolCall.id,
-              content: result.content as string,
-            }
-          );
-
-          console.log(`🤖 Getting follow-up response from OpenAI`);
-          const followUp = await this.openai.chat.completions.create({
-            model: "gpt-4o",
-            messages,
-          });
-
-          finalText.push(followUp.choices[0].message.content || "");
-        } catch (toolError) {
-          console.error(`❌ Tool call failed:`, toolError);
-          finalText.push(`Error calling tool ${toolName}: ${toolError}`);
+        const mcp = this.getClientByToolName(toolName);
+        if (!mcp) {
+          throw new Error(`No client found for tool ${toolName}`);
         }
+
+        const result = await mcp.callTool({
+          name: toolName,
+          arguments: args,
+        });
+
+        finalText.push(
+          `[Calling tool ${toolName} with args ${JSON.stringify(args)}]`
+        );
+
+        messages.push(
+          choice.message,
+          {
+            role: "tool",
+            tool_call_id: toolCall.id,
+            content: result.content as string,
+          }
+        );
+
+        const followUp = await this.openai.chat.completions.create({
+          model: "gpt-4o",
+          messages,
+        });
+
+        finalText.push(followUp.choices[0].message.content || "");
       } else {
-        console.log(`💬 No tool call, using direct response`);
         finalText.push(choice.message.content || "");
       }
 
       return finalText.join("\n");
-    } catch (error) {
-      console.error(`❌ Error in processQuery:`, error);
-      return `Error processing query: ${error}`;
+    } catch (err) {
+      console.error("❌ processQuery error:", err);
+      return `Error: ${err}`;
     }
   }
 
-  async cleanup() {
-    await this.mcp.close();
+  async cleanupAll() {
+    for (const { mcp } of Object.values(this.clients)) {
+      await mcp.close();
+    }
   }
 }

@@ -1,7 +1,7 @@
 # MCP Client/Server
 
-This is a pet project for learning how to work with the **Model Context Protocol (MCP)**.  
-The server implements basic tools using the MCP SDK and handles requests via standard input/output (stdio).
+This is a comprehensive **Model Context Protocol (MCP)** implementation with multi-server support.  
+The project includes both a local MCP server with 18 Notion API tools and a client that can connect to multiple external MCP servers simultaneously (Notion, GitHub, local) with built-in configurations.
 
 ## Goals
 - Understand MCP architecture
@@ -12,8 +12,10 @@ The server implements basic tools using the MCP SDK and handles requests via sta
 
 - Node.js 18+ 
 - TypeScript 5.8+
+- Docker (for GitHub server)
 - Notion Integration Token
 - OpenAI API Key (for client usage)
+- GitHub Personal Access Token (for client usage)
 
 ## 🛠️ Installation
 
@@ -32,6 +34,7 @@ Create a `.env` file in the root directory:
 ```env
 NOTION_API_KEY=your_notion_integration_token_here
 OPENAI_API_KEY=your_openai_api_key_here
+GITHUB_PERSONAL_ACCESS_TOKEN=your_github_token_here
 ```
 
 4. **Build the project:**
@@ -49,15 +52,16 @@ npm run start
 ```
 mcp/
 ├── src/
-│   ├── client/           # MCP client implementation
-│   │   ├── client.ts     # Main client class with OpenAI integration
-│   │   └── index.ts      # Interactive CLI interface
-│   └── server/           # MCP server implementation
+│   ├── client/           # Multi-server MCP client
+│   │   ├── client.ts     # Client with OpenAI integration & config support
+│   │   └── index.ts      # CLI with built-in server configurations
+│   └── server/           # Local MCP server implementation
 │       ├── index.ts      # Main server entry point
 │       ├── interface.ts  # TypeScript interfaces
-│       └── tools.ts      # Tool definitions with schema conversion
+│       └── tools.ts      # 18 Notion API tools with schema conversion
 ├── build/                # Compiled JavaScript output
-├── .env                  # Environment variables
+├── mcp-config.example.json # Example configuration for external servers
+├── .env                  # Environment variables (Notion, OpenAI, GitHub)
 ├── .gitignore           # Git ignore rules
 ├── package.json          # Project configuration
 ├── tsconfig.json         # TypeScript configuration
