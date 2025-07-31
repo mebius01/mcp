@@ -1,7 +1,12 @@
-# MCP Notion API Server
+# MCP Client/Server
 
-A comprehensive Model Context Protocol (MCP) server that provides access to the Notion API through 18 specialized tools. This server enables AI assistants and other MCP clients to interact with Notion workspaces, databases, pages, blocks, users, and comments.
+This is a pet project for learning how to work with the **Model Context Protocol (MCP)**.  
+The server implements basic tools using the MCP SDK and handles requests via standard input/output (stdio).
 
+## Goals
+- Understand MCP architecture
+- Learn how to create custom tools
+- Use Zod for input validation
 
 ## 📋 Prerequisites
 
