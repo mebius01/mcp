@@ -1,8 +1,7 @@
-import { ServerNotification, ServerRequest, Tool, CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import { ServerNotification, ServerRequest, CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
-import { ToolCallback } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z, ZodRawShape } from "zod";
-import { IMCPTool } from "./interface.js";
+import { IMCPTool } from "../interface.js";
 
 
 const formatResponse = (data: any): CallToolResult => ({
@@ -44,40 +43,43 @@ const createZodSchema = (properties: Record<string, any>, required: string[] = [
 };
 
 
-
-// Helper function to create MCP tool with automatic schema conversion
-const createMCPTool = (
-  name: string,
-  description: string,
-  jsonSchema: { properties: Record<string, any>; required?: string[]; },
-  callback: ToolCallback<ZodRawShape>
-): IMCPTool => ({
-  name,
-  description,
-  inputSchema: createZodSchema(jsonSchema.properties, jsonSchema.required || []),
-  callback
-});
-
 // Converted tools ready for MCP server
 export const TOOLS: IMCPTool[] = [
-  createMCPTool(
-    "echo",
-    "Returns the input back as a stringified JSON",
-    {
+  {
+    name: "ping-pong",
+    description: "Responds with 'PONG' when you send 'PING', or echoes other messages",
+    inputSchema: createZodSchema({
       properties: {
-        message: { type: "string" },
+        message: {
+          type: "string",
+          description: "Message to send. Use 'PING' to get 'PONG' response."
+        },
       },
       required: ["message"],
-    },
-    async (args: any, extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
+    }),
+    callback: async (args: any, extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
       const { message } = args as { message: string; };
-      return formatResponse({ echo: message });
+
+      // Ping-Pong logic
+      if (message.toUpperCase().trim() === "PING") {
+        return formatResponse({
+          response: "PONG",
+          timestamp: new Date().toISOString(),
+          message: "Server is alive and responding!"
+        });
+      }
+
+      // Echo other messages
+      return formatResponse({
+        echo: message,
+        note: "Send 'PING' to get 'PONG' response"
+      });
     }
-  ),
-  createMCPTool(
-    "plus_numbers",
-    "Add two numbers",
-    {
+  },
+  {
+    name: "plus_numbers",
+    description: "Add two numbers",
+    inputSchema: createZodSchema({
       properties: {
         a: {
           type: "number",
@@ -89,10 +91,10 @@ export const TOOLS: IMCPTool[] = [
         },
       },
       required: ["a", "b"],
-    },
-    async (args: any, extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
+    }),
+    callback: async (args: any, extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
       const { a, b } = args as { a: number; b: number; };
       return formatResponse({ plus_numbers: { a, b, result: a + b } });
     }
-  ),
+  },
 ];

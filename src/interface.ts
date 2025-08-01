@@ -9,3 +9,9 @@ export interface IMCPTool {
   inputSchema: ZodRawShape;
   callback: ToolCallback<ZodRawShape>;
 }
+
+export type MCPServerConfig = {
+  command: string;
+  args?: string[];
+  env?: Record<string, string>;
+};
