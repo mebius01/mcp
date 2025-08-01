@@ -4,6 +4,7 @@ import { ChatCompletionTool } from "openai/resources";
 import dotenv from "dotenv";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { MCPServerConfig } from "../interface.js";
 
 dotenv.config();
 
@@ -12,11 +13,6 @@ if (!OPENAI_API_KEY) {
   throw new Error("OPENAI_API_KEY is not set");
 }
 
-type MCPServerConfig = {
-  command: string;
-  args: string[];
-  env?: Record<string, string>;
-};
 
 export class MCPClient {
   private openai: OpenAI;

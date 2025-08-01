@@ -1,13 +1,13 @@
 {
-  "name": "mcp",
-  "version": "1.0.0",
+  "name": "mcp-hub",
+  "version": "1.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "main.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc && find build -type f -name '*.js' -exec chmod +x {} \\;",
-    "start": "node build/client/index.js"
+    "start": "node build/client/main.js"
   },
   "repository": {
     "type": "git",
