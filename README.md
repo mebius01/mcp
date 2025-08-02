@@ -8,28 +8,37 @@ It combines the power of OpenAI's language models with multiple MCP servers, pro
 - Node.js 18+ 
 - TypeScript 5.8+
 - Docker (for GitHub server)
-- Notion Integration Token
-- OpenAI API Key (for client usage)
-- GitHub Personal Access Token (for client usage)
+- API Keys for your chosen providers:
+  - Notion Integration Token (for Notion server)
+  - OpenAI API Key (for OpenAI provider)
+  - Google AI API Key (for Gemini provider)
+  - Anthropic API Key (for Claude provider)
+  - GitHub Personal Access Token (for GitHub server)
 
 ## 🛠️ Installation
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/mebius01/mcp.git
+git clone git@github.com:Halo-Lab/mcp-hub.git
+cd mcp-hub
 ```
 
 2. **Install dependencies:**
 ```bash
 npm install
-   ```
+```
 
 3. **Set up environment variables:**
 Create a `.env` file in the root directory:
 ```env
+# MCP Server APIs
 NOTION_API_KEY=your_notion_integration_token_here
-OPENAI_API_KEY=your_openai_api_key_here
 GITHUB_PERSONAL_ACCESS_TOKEN=your_github_token_here
+
+# AI Provider APIs (add only the ones you plan to use)
+OPENAI_API_KEY=your_openai_api_key_here
+GOOGLE_API_KEY=your_google_ai_api_key_here
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
 ```
 
 4. **Build the project:**
@@ -37,52 +46,78 @@ GITHUB_PERSONAL_ACCESS_TOKEN=your_github_token_here
 npm run build
 ```
 
-5. **Run the server:**
+5. **Run the client:**
 ```bash
 npm run start
 ```
 
+## 🏗️ Project Structure
 
-## 🔧 Server Configuration System
+```
+src/
+├── config.ts              # Centralized configuration for servers and models
+├── interface.ts            # TypeScript interfaces and types
+├── client/                 # MCP Client implementation
+│   ├── main.ts            # Main client entry point
+│   ├── client.ts          # MCP client logic
+│   └── provider/          # AI provider implementations
+│       ├── openai.ts      # OpenAI GPT integration
+│       ├── google.ts      # Google Gemini integration
+│       └── anthropic.ts   # Anthropic Claude integration
+└── server/                 # Local MCP Server
+    ├── main.ts            # Server entry point
+    └── tools.ts           # Custom MCP tools
+```
 
-MCP-HUB features a flexible **server configuration system** that allows you to easily connect to any MCP-compatible server. The configuration follows the **Model Context Protocol (MCP) standard**, ensuring compatibility with the growing ecosystem of MCP servers.
+## ⚙️ Configuration
 
-### Configuration
+### AI Providers and Models
 
-Each server configuration follows this structure:
+The system supports multiple AI providers with various models. Configuration is centralized in `src/config.ts`:
+
+```typescript
+export const MODELS: IModel[] = [
+  // OpenAI models
+  { model_id: 1, provider: 'openai', model_name: 'GPT-4O', model_code: 'gpt-4o' },
+  { model_id: 2, provider: 'openai', model_name: 'GPT-3.5 Turbo', model_code: 'gpt-3.5-turbo' },
+  
+  // Google models  
+  { model_id: 3, provider: 'google', model_name: 'Gemini 2.0 Flash', model_code: 'gemini-2.0-flash' },
+  { model_id: 4, provider: 'google', model_name: 'Gemini 1.5 Pro', model_code: 'gemini-1.5-pro' },
+  
+  // Anthropic models
+  { model_id: 5, provider: 'anthropic', model_name: 'Claude 3.5 Sonnet', model_code: 'claude-3-5-sonnet-20241022' },
+  { model_id: 6, provider: 'anthropic', model_name: 'Claude 3 Opus', model_code: 'claude-3-opus-20240229' },
+];
+```
+
+### Changing AI Provider
+
+To use a different AI provider, update the `DEFAULT_PROVIDER` in `src/config.ts`:
+
+```typescript
+export const DEFAULT_PROVIDER = {
+  provider: "google",        // "openai", "google", or "anthropic"
+  model: "gemini-2.0-flash", // Model code from MODELS array
+};
+```
+
+### MCP Server Configuration
+
+Each server configuration follows the MCP standard:
+
 ```typescript
 interface MCPServerConfig {
   command: string;           // Executable command (node, npx, docker, etc.)
   args?: string[];          // Command arguments
   env?: Record<string, string>; // Environment variables
 }
+
 ```
 
-### Adding New Servers
+### Built-in Server Configurations
 
-You can easily add any MCP server by adding it to the configuration in `src/client/config.ts`:
-
-```typescript
-export const MCP_SERVER_CONFIG = {
-  // Built-in servers
-  notion: { /* ... */ },
-  github: { /* ... */ },
-  local: { /* ... */ },
-  
-  // Add your custom server
-  yourServer: {
-    command: "npx",
-    args: ["-y", "@your-org/your-mcp-server"],
-    env: {
-      YOUR_API_KEY: process.env.YOUR_API_KEY
-    }
-  }
-};
-```
-
-### Built-in Configurations
-
-MCP-HUB comes with pre-configured setups for popular MCP servers:
+The system comes with pre-configured setups for popular MCP servers in `src/config.ts`:
 
 #### Notion Server
 ```typescript
@@ -122,29 +157,70 @@ local: {
   args: ["build/server/main.js"]
 }
 ```
-- **Purpose**: Custom MCP server with 18 Notion API tools
+- **Purpose**: Custom MCP server with local tools
 - **Standard**: Built with MCP SDK
-- **Authentication**: Uses NOTION_API_KEY from environment
+- **Authentication**: Uses environment variables as needed
 
+### Adding New Servers
 
+You can easily add any MCP server by adding it to the configuration in `src/config.ts`:
 
-## 🏗️ Project Structure
-
+```typescript
+export const MCP_SERVER_CONFIG = {
+  // Built-in servers
+  notion: { /* ... */ },
+  github: { /* ... */ },
+  local: { /* ... */ },
+  
+  // Add your custom server
+  yourServer: {
+    command: "npx",
+    args: ["-y", "@your-org/your-mcp-server"],
+    env: {
+      YOUR_API_KEY: process.env.YOUR_API_KEY
+    }
+  }
+};
 ```
-mcp/
-├── src/
-│   ├── client/           # Multi-server MCP client
-│   │   ├── client.ts     # Core MCP client with multi-server support
-│   │   ├── config.ts     # Server configurations (Notion, GitHub, Local)
-│   │   └── main.ts       # CLI entry point with interactive chat
-│   ├── server/           # Local MCP server implementation
-│   │   ├── main.ts       # Server entry point
-│   │   └── tools.ts      # 18 Notion API tools with schema conversion
-│   └── interface.ts      # Shared TypeScript interfaces (MCPServerConfig, IMCPTool)
-├── build/                # Compiled JavaScript output
-├── .env                  # Environment variables (Notion, OpenAI, GitHub)
-├── .gitignore            # Git ignore rules
-├── package.json          # Project configuration
-├── tsconfig.json         # TypeScript configuration
-└── README.md             # This file
+
+## 🚀 Usage
+
+### Interactive Chat
+
+The client provides an interactive chat interface that connects to all configured MCP servers and uses your chosen AI provider:
+
+```bash
+npm run start
 ```
+
+The system will:
+1. Connect to all configured MCP servers
+2. Initialize the AI provider (default: OpenAI GPT-4O)
+3. Start an interactive chat session
+4. Automatically use MCP tools when relevant to your queries
+
+## 🛠️ Development
+
+### Running the Local Server Only
+
+To run just the local MCP server:
+
+```bash
+# Build first
+npm run build
+
+# Run server
+node build/server/main.js
+```
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 📚 Resources
+
+- [Model Context Protocol (MCP) Documentation](https://modelcontextprotocol.io/)
+- [MCP SDK Documentation](https://github.com/modelcontextprotocol/sdk)
+- [OpenAI API Documentation](https://platform.openai.com/docs)
+- [Google AI API Documentation](https://ai.google.dev/)
+- [Anthropic API Documentation](https://docs.anthropic.com/)

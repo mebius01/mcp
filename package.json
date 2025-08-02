@@ -21,6 +21,8 @@
   },
   "homepage": "https://github.com/mebius01/mcp#readme",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.57.0",
+    "@google/generative-ai": "^0.24.1",
     "@modelcontextprotocol/sdk": "^1.17.0",
     "@notionhq/client": "^4.0.1",
     "dotenv": "^17.2.1",
