@@ -42,6 +42,11 @@ const createZodSchema = (properties: Record<string, any>, required: string[] = [
   return shape as ZodRawShape;
 };
 
+/* 
+list-models
+set-model
+get-model
+*/
 
 // Converted tools ready for MCP server
 export const TOOLS: IMCPTool[] = [
