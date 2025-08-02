@@ -1,8 +1,29 @@
 # MCP-HUB
-MCP-HUB is a powerful multi-server MCP client that allows you to seamlessly interact with various AI services and tools through a single chat interface. 
-It combines the power of OpenAI's language models with multiple MCP servers, providing access to Notion, GitHub, and custom tools all in one place.
 
+**MCP-HUB** is a powerful multi-provider Model Context Protocol (MCP) client that enables seamless integration with various AI services and tools through a unified chat interface.
 
+## 🚀 Key Features
+
+- **Multi-AI Provider Support**: OpenAI GPT, Google Gemini, Anthropic Claude
+- **Multi-Server MCP Architecture**: Connections to Notion API, GitHub, and local servers
+- **Interactive CLI**: Convenient command-line interface for AI interaction
+- **TypeScript + Zod**: Full type safety and schema validation
+- **Centralized Configuration**: Easy management of servers and models
+- **Extensibility**: Simple mechanism for adding new tools and providers
+
+## 🏗️ Architecture
+
+The project consists of two main components:
+
+### 📡 MCP Client (`src/client/`)
+- **Multi-Provider Support**: Adapters for OpenAI, Google Gemini, Anthropic
+- **MCP Client**: Management of connections to various MCP servers
+- **Interactive Chat**: CLI interface for communicating with AI
+
+### 🛠️ MCP Server (`src/server/`)
+- **Local MCP Server**: Custom tools and functions
+- **Zod Validation**: Type-safe validation of tool parameters
+- **Extensible Toolset**: Easy addition of new functions
 ## 📋 Prerequisites
 
 - Node.js 18+ 
