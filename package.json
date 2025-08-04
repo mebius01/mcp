@@ -7,7 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc && find build -type f -name '*.js' -exec chmod +x {} \\;",
-    "start": "node build/client/main.js"
+    "start": "node build/main.js"
   },
   "repository": {
     "type": "git",

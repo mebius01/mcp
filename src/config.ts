@@ -30,11 +30,6 @@ export const MCP_SERVER_CONFIG: Record<string, MCPServerConfig> = {
   },
 };
 
-export const DEFAULT_PROVIDER = {
-  provider: "openai",
-  model: "gpt-4o",
-};
-
 export const MODELS: IModel[] = [
   // OpenAI models
   {
@@ -78,3 +73,8 @@ export const MODELS: IModel[] = [
     model_code: 'claude-3-opus-20240229',
   },
 ];
+
+export const DEFAULT_PROVIDER = {
+  provider: "openai",
+  model: "gpt-4o",
+};

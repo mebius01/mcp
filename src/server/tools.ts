@@ -1,9 +1,29 @@
 import { ServerNotification, ServerRequest, CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 import { z, ZodRawShape } from "zod";
-import { IMCPTool } from "../interface.js";
+import { IMCPTool, ProviderName } from "../interface.js";
+import { DEFAULT_PROVIDER, MODELS } from "../config.js";
 
 
+function showModel(): { provider: ProviderName; model: string; } {
+  return {
+    provider: DEFAULT_PROVIDER.provider as ProviderName,
+    model: DEFAULT_PROVIDER.model,
+  };
+}
+
+function listModels(): Record<string, string[]> {
+  const modelsByProvider: Record<string, string[]> = {};
+
+  MODELS.forEach((model) => {
+    if (!modelsByProvider[model.provider]) {
+      modelsByProvider[model.provider] = [];
+    }
+    modelsByProvider[model.provider].push(model.model_code);
+  });
+
+  return modelsByProvider;
+}
 const formatResponse = (data: any): CallToolResult => ({
   content: [{
     type: "text",
@@ -42,64 +62,30 @@ const createZodSchema = (properties: Record<string, any>, required: string[] = [
   return shape as ZodRawShape;
 };
 
-/* 
-list-models
-set-model
-get-model
-*/
 
-// Converted tools ready for MCP server
 export const TOOLS: IMCPTool[] = [
   {
-    name: "ping-pong",
-    description: "Responds with 'PONG' when you send 'PING', or echoes other messages",
+    name: "list-models",
+    description: "Returns a list of all available models grouped by provider",
     inputSchema: createZodSchema({
-      properties: {
-        message: {
-          type: "string",
-          description: "Message to send. Use 'PING' to get 'PONG' response."
-        },
-      },
-      required: ["message"],
+      properties: {},
+      required: [],
     }),
     callback: async (args: any, extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
-      const { message } = args as { message: string; };
-
-      // Ping-Pong logic
-      if (message.toUpperCase().trim() === "PING") {
-        return formatResponse({
-          response: "PONG",
-          timestamp: new Date().toISOString(),
-          message: "Server is alive and responding!"
-        });
-      }
-
-      // Echo other messages
-      return formatResponse({
-        echo: message,
-        note: "Send 'PING' to get 'PONG' response"
-      });
+      const models = listModels();
+      return formatResponse(models);
     }
   },
   {
-    name: "plus_numbers",
-    description: "Add two numbers",
+    name: "show-model",
+    description: "Returns the current provider and model configuration",
     inputSchema: createZodSchema({
-      properties: {
-        a: {
-          type: "number",
-          description: "The first number to add.",
-        },
-        b: {
-          type: "number",
-          description: "The second number to add.",
-        },
-      },
-      required: ["a", "b"],
+      properties: {},
+      required: [],
     }),
     callback: async (args: any, extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
-      const { a, b } = args as { a: number; b: number; };
-      return formatResponse({ plus_numbers: { a, b, result: a + b } });
+      const currentConfig = showModel();
+      return formatResponse(currentConfig);
     }
-  },
+  }
 ];
