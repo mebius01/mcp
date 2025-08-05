@@ -21,7 +21,7 @@ function getProvider(mcpClient: MCPClient): IAIProvider {
   }
 }
 
-export async function startChat(mcpClient: MCPClient) {
+export async function chat(mcpClient: MCPClient) {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,

@@ -4,26 +4,6 @@ import { z, ZodRawShape } from "zod";
 import { IMCPTool, ProviderName } from "../interface.js";
 import { DEFAULT_PROVIDER, MODELS } from "../config.js";
 
-
-function showModel(): { provider: ProviderName; model: string; } {
-  return {
-    provider: DEFAULT_PROVIDER.provider as ProviderName,
-    model: DEFAULT_PROVIDER.model,
-  };
-}
-
-function listModels(): Record<string, string[]> {
-  const modelsByProvider: Record<string, string[]> = {};
-
-  MODELS.forEach((model) => {
-    if (!modelsByProvider[model.provider]) {
-      modelsByProvider[model.provider] = [];
-    }
-    modelsByProvider[model.provider].push(model.model_code);
-  });
-
-  return modelsByProvider;
-}
 const formatResponse = (data: any): CallToolResult => ({
   content: [{
     type: "text",
@@ -72,7 +52,13 @@ export const TOOLS: IMCPTool[] = [
       required: [],
     }),
     callback: async (args: any, extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
-      const models = listModels();
+      const models: Record<string, string[]> = {};
+      MODELS.forEach((model) => {
+        if (!models[model.provider]) {
+          models[model.provider] = [];
+        }
+        models[model.provider].push(model.model_code);
+      });
       return formatResponse(models);
     }
   },
@@ -84,8 +70,11 @@ export const TOOLS: IMCPTool[] = [
       required: [],
     }),
     callback: async (args: any, extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
-      const currentConfig = showModel();
-      return formatResponse(currentConfig);
+      const data = {
+        provider: DEFAULT_PROVIDER.provider as ProviderName,
+        model: DEFAULT_PROVIDER.model,
+      };
+      return formatResponse(data);
     }
   }
 ];

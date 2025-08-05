@@ -13,14 +13,6 @@ export class MCPClient implements IMCPClient {
     }
   > = {};
 
-  private logConnect(name: string, tools: Tool[]) {
-    console.log(`\n\nConnected to ${name} \n✅Tools: ${tools.map(t => t.name).join(", ")}`);
-  }
-
-  private logDisconnect(name: string) {
-    console.log(`🔌 Disconnected from "${name}"`);
-  }
-
   async connect(configs: Record<string, MCPServerConfig>) {
     for (const [name, cfg] of Object.entries(configs)) {
       const transport = new StdioClientTransport(
@@ -44,7 +36,7 @@ export class MCPClient implements IMCPClient {
 
       this.clients[name] = { mcp, transport, tools };
 
-      this.logConnect(name, tools);
+      console.log(`\n\nConnected to ${name} \n✅Tools: ${tools.map(t => t.name).join(", ")}`);
     }
   }
 
@@ -52,7 +44,7 @@ export class MCPClient implements IMCPClient {
     for (const [name, { mcp, transport }] of Object.entries(this.clients)) {
       await mcp.close();
       await transport.close();
-      this.logDisconnect(name);
+      console.log(`🔌 Disconnected from "${name}"`);
     }
     this.clients = {};
   }

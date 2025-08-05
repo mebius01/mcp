@@ -13,17 +13,24 @@
 
 ## 🏗️ Architecture
 
-The project consists of two main components:
+The project consists of three main components:
 
 ### 📡 MCP Client (`src/client/`)
-- **Multi-Provider Support**: Adapters for OpenAI, Google Gemini, Anthropic
-- **MCP Client**: Management of connections to various MCP servers
-- **Interactive Chat**: CLI interface for communicating with AI
+- **Multi-Provider Support**: Adapters for OpenAI, Google Gemini, Anthropic Claude
+- **MCP Protocol**: Standard MCP client implementation for server connections
+- **Chat Interface**: Interactive chat logic with AI providers
+- **Provider Abstraction**: Unified interface for different AI models
 
 ### 🛠️ MCP Server (`src/server/`)
-- **Local MCP Server**: Custom tools and functions
-- **Zod Validation**: Type-safe validation of tool parameters
-- **Extensible Toolset**: Easy addition of new functions
+- **Local MCP Server**: Custom tools and functions implementation
+- **Tool Registration**: MCP-compliant tool definitions
+- **Type Safety**: Full TypeScript support with proper interfaces
+
+### ⚙️ Core Components (`src/`)
+- **Centralized Configuration**: Single config file for all servers and models
+- **Type Definitions**: Shared interfaces and types across the project
+- **Main Entry Point**: Application bootstrap and initialization
+
 ## 📋 Prerequisites
 
 - Node.js 18+ 
@@ -76,18 +83,19 @@ npm run start
 
 ```
 src/
+├── main.ts                # Main application entry point
 ├── config.ts              # Centralized configuration for servers and models
-├── interface.ts            # TypeScript interfaces and types
-├── client/                 # MCP Client implementation
-│   ├── main.ts            # Main client entry point
-│   ├── client.ts          # MCP client logic
-│   └── provider/          # AI provider implementations
-│       ├── openai.ts      # OpenAI GPT integration
-│       ├── google.ts      # Google Gemini integration
-│       └── anthropic.ts   # Anthropic Claude integration
-└── server/                 # Local MCP Server
-    ├── main.ts            # Server entry point
-    └── tools.ts           # Custom MCP tools
+├── interface.ts           # TypeScript interfaces and types
+├── client/                # MCP Client implementation
+│   ├── chat.ts           # Chat interaction logic
+│   ├── client.ts         # MCP client logic
+│   └── provider/         # AI provider implementations
+│       ├── openai.ts     # OpenAI GPT integration
+│       ├── google.ts     # Google Gemini integration
+│       └── anthropic.ts  # Anthropic Claude integration
+└── server/               # Local MCP Server
+    ├── main.ts          # Server entry point
+    └── tools.ts         # Custom MCP tools
 ```
 
 ## ⚙️ Configuration
