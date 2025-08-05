@@ -1,15 +1,12 @@
 import readline from "readline/promises";
 import { MCPClient } from "./client.js";
-import { DEFAULT_PROVIDER, MCP_SERVER_CONFIG } from "../config.js";
+import { DEFAULT_PROVIDER } from "../config.js";
 import { OpenAIProvider } from "./provider/openai.js";
 import { IAIProvider } from "../interface.js";
 import { GeminiProvider } from "./provider/google.js";
 import { AnthropicProvider } from "./provider/anthropic.js";
 
-
-const mcpClient = new MCPClient();
-
-async function getProvider(): Promise<IAIProvider> {
+function getProvider(mcpClient: MCPClient): IAIProvider {
   const { provider, model } = DEFAULT_PROVIDER;
 
   switch (provider) {
@@ -23,11 +20,8 @@ async function getProvider(): Promise<IAIProvider> {
       throw new Error(`Unknown provider: ${provider}`);
   }
 }
-const aiProvider = await getProvider();
 
-async function chat() {
-  const { provider, model } = DEFAULT_PROVIDER;
-  console.log(`✨ Using provider: ${provider}, model: ${model}`);
+export async function chat(mcpClient: MCPClient) {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
@@ -36,7 +30,8 @@ async function chat() {
   try {
     while (true) {
       try {
-        const message = await rl.question("\nQuery: ");
+        const aiProvider = getProvider(mcpClient);
+        const message = await rl.question("Query: ");
         const response = await aiProvider.ask(message);
         console.log("\n" + response);
       } catch (queryError) {
@@ -50,16 +45,3 @@ async function chat() {
     rl.close();
   }
 }
-
-
-
-async function main() {
-  try {
-    await mcpClient.connect(MCP_SERVER_CONFIG);
-    await chat();
-  } finally {
-    await mcpClient.disconnect();
-    process.exit(0);
-  }
-}
-main();

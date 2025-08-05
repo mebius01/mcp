@@ -5,25 +5,36 @@
 ## 🚀 Key Features
 
 - **Multi-AI Provider Support**: OpenAI GPT, Google Gemini, Anthropic Claude
+- **Complete MCP Implementation**: Full support for Tools, Prompts, and Resources
 - **Multi-Server MCP Architecture**: Connections to Notion API, GitHub, and local servers
 - **Interactive CLI**: Convenient command-line interface for AI interaction
+- **Smart Prompts System**: Educational and development-focused prompt templates
 - **TypeScript + Zod**: Full type safety and schema validation
 - **Centralized Configuration**: Easy management of servers and models
-- **Extensibility**: Simple mechanism for adding new tools and providers
+- **Safe Error Handling**: Graceful fallbacks for servers without prompts support
+- **Extensibility**: Simple mechanism for adding new tools, prompts, and providers
 
 ## 🏗️ Architecture
 
-The project consists of two main components:
+The project consists of three main components:
 
 ### 📡 MCP Client (`src/client/`)
-- **Multi-Provider Support**: Adapters for OpenAI, Google Gemini, Anthropic
-- **MCP Client**: Management of connections to various MCP servers
-- **Interactive Chat**: CLI interface for communicating with AI
+- **Multi-Provider Support**: Adapters for OpenAI, Google Gemini, Anthropic Claude
+- **MCP Protocol**: Standard MCP client implementation for server connections
+- **Chat Interface**: Interactive chat logic with AI providers
+- **Provider Abstraction**: Unified interface for different AI models
 
 ### 🛠️ MCP Server (`src/server/`)
-- **Local MCP Server**: Custom tools and functions
-- **Zod Validation**: Type-safe validation of tool parameters
-- **Extensible Toolset**: Easy addition of new functions
+- **Local MCP Server**: Custom tools and functions implementation
+- **Tool Registration**: MCP-compliant tool definitions
+- **Prompt Registration**: MCP-compliant prompt definitions
+- **Type Safety**: Full TypeScript support with proper interfaces
+
+### ⚙️ Core Components (`src/`)
+- **Centralized Configuration**: Single config file for all servers and models
+- **Type Definitions**: Shared interfaces and types across the project
+- **Main Entry Point**: Application bootstrap and initialization
+
 ## 📋 Prerequisites
 
 - Node.js 18+ 
@@ -76,18 +87,19 @@ npm run start
 
 ```
 src/
+├── main.ts                # Main application entry point
 ├── config.ts              # Centralized configuration for servers and models
-├── interface.ts            # TypeScript interfaces and types
-├── client/                 # MCP Client implementation
-│   ├── main.ts            # Main client entry point
-│   ├── client.ts          # MCP client logic
-│   └── provider/          # AI provider implementations
-│       ├── openai.ts      # OpenAI GPT integration
-│       ├── google.ts      # Google Gemini integration
-│       └── anthropic.ts   # Anthropic Claude integration
-└── server/                 # Local MCP Server
-    ├── main.ts            # Server entry point
-    └── tools.ts           # Custom MCP tools
+├── interface.ts           # TypeScript interfaces and types
+├── client/                # MCP Client implementation
+│   ├── chat.ts           # Chat interaction logic
+│   ├── client.ts         # MCP client logic
+│   └── provider/         # AI provider implementations
+│       ├── openai.ts     # OpenAI GPT integration
+│       ├── google.ts     # Google Gemini integration
+│       └── anthropic.ts  # Anthropic Claude integration
+└── server/               # Local MCP Server
+    ├── main.ts          # Server entry point
+    └── tools.ts         # Custom MCP tools
 ```
 
 ## ⚙️ Configuration
@@ -234,9 +246,31 @@ npm run build
 node build/server/main.js
 ```
 
-## 📝 License
+## 🧪 Testing with MCP Inspector
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+You can test the local MCP server using the official MCP Inspector tool:
+
+1. **Install MCP Inspector globally:**
+```bash
+npm install -g @modelcontextprotocol/inspector
+```
+
+2. **Build and start your local server:**
+```bash
+npm run build
+node build/server/main.js
+```
+
+3. **In another terminal, run MCP Inspector:**
+```bash
+mcp-inspector
+```
+
+The MCP Inspector provides a visual interface to:
+- Browse available tools and their schemas
+- Test tool execution with different parameters
+- View server capabilities and metadata
+- Debug MCP protocol communication
 
 ## 📚 Resources
 
