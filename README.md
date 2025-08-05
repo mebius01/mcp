@@ -5,11 +5,14 @@
 ## 🚀 Key Features
 
 - **Multi-AI Provider Support**: OpenAI GPT, Google Gemini, Anthropic Claude
+- **Complete MCP Implementation**: Full support for Tools, Prompts, and Resources
 - **Multi-Server MCP Architecture**: Connections to Notion API, GitHub, and local servers
 - **Interactive CLI**: Convenient command-line interface for AI interaction
+- **Smart Prompts System**: Educational and development-focused prompt templates
 - **TypeScript + Zod**: Full type safety and schema validation
 - **Centralized Configuration**: Easy management of servers and models
-- **Extensibility**: Simple mechanism for adding new tools and providers
+- **Safe Error Handling**: Graceful fallbacks for servers without prompts support
+- **Extensibility**: Simple mechanism for adding new tools, prompts, and providers
 
 ## 🏗️ Architecture
 
@@ -24,6 +27,7 @@ The project consists of three main components:
 ### 🛠️ MCP Server (`src/server/`)
 - **Local MCP Server**: Custom tools and functions implementation
 - **Tool Registration**: MCP-compliant tool definitions
+- **Prompt Registration**: MCP-compliant prompt definitions
 - **Type Safety**: Full TypeScript support with proper interfaces
 
 ### ⚙️ Core Components (`src/`)
@@ -242,9 +246,31 @@ npm run build
 node build/server/main.js
 ```
 
-## 📝 License
+## 🧪 Testing with MCP Inspector
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+You can test the local MCP server using the official MCP Inspector tool:
+
+1. **Install MCP Inspector globally:**
+```bash
+npm install -g @modelcontextprotocol/inspector
+```
+
+2. **Build and start your local server:**
+```bash
+npm run build
+node build/server/main.js
+```
+
+3. **In another terminal, run MCP Inspector:**
+```bash
+mcp-inspector
+```
+
+The MCP Inspector provides a visual interface to:
+- Browse available tools and their schemas
+- Test tool execution with different parameters
+- View server capabilities and metadata
+- Debug MCP protocol communication
 
 ## 📚 Resources
 

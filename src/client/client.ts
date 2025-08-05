@@ -1,7 +1,7 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { IMCPClient, MCPServerConfig } from "../interface.js";
-import { Tool } from "@modelcontextprotocol/sdk/types.js";
+import { Tool, Prompt } from "@modelcontextprotocol/sdk/types.js";
 
 export class MCPClient implements IMCPClient {
   private clients: Record<
@@ -10,8 +10,18 @@ export class MCPClient implements IMCPClient {
       mcp: Client;
       transport: StdioClientTransport;
       tools: Tool[];
+      prompts: Prompt[];
     }
   > = {};
+
+  private logConnect(name: string, tools: Tool[], prompts: Prompt[]) {
+    const promptsInfo = prompts.length > 0 ? `\n💬 Prompts: ${prompts.map(p => p.name).join(", ")}` : "";
+    console.log(`\n\nConnected to ${name} \n⚒️ Tools: ${tools.map(t => t.name).join(", ")}${promptsInfo}`);
+  }
+
+  private logDisconnect(name: string) {
+    console.log(`🔌 Disconnected from "${name}"`);
+  }
 
   async connect(configs: Record<string, MCPServerConfig>) {
     for (const [name, cfg] of Object.entries(configs)) {
@@ -34,9 +44,18 @@ export class MCPClient implements IMCPClient {
 
       const { tools } = await mcp.listTools();
 
-      this.clients[name] = { mcp, transport, tools };
+      let prompts: Prompt[] = [];
+      try {
+        const promptsResult = await mcp.listPrompts();
+        prompts = promptsResult.prompts || [];
+      } catch (error) {
+        console.log(`⚠️  Server "${name}" doesn't support prompts`);
+        prompts = [];
+      }
 
-      console.log(`\n\nConnected to ${name} \n✅Tools: ${tools.map(t => t.name).join(", ")}`);
+      this.clients[name] = { mcp, transport, tools, prompts };
+
+      this.logConnect(name, tools, prompts);
     }
   }
 
@@ -44,13 +63,17 @@ export class MCPClient implements IMCPClient {
     for (const [name, { mcp, transport }] of Object.entries(this.clients)) {
       await mcp.close();
       await transport.close();
-      console.log(`🔌 Disconnected from "${name}"`);
+      this.logDisconnect(name);
     }
     this.clients = {};
   }
 
   listTools(): Tool[] {
     return Object.values(this.clients).flatMap(({ tools }) => tools);
+  }
+
+  listPrompts(): Prompt[] {
+    return Object.values(this.clients).flatMap(({ prompts }) => prompts);
   }
 
   getClient(toolName: string): Client | undefined {

@@ -1,6 +1,6 @@
 import { ToolCallback } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { ZodRawShape } from 'zod';
-import { Tool, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+import { Tool, CallToolResult, GetPromptResult, ServerRequest, ServerNotification, Prompt } from '@modelcontextprotocol/sdk/types.js';
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 
 import {
@@ -23,6 +23,7 @@ import {
   FunctionCall,
   Tool as GoogleTool,
 } from "@google/generative-ai";
+import { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/protocol.js';
 
 export interface IMCPTool {
   name: string;
@@ -30,6 +31,13 @@ export interface IMCPTool {
   description?: string;
   inputSchema: ZodRawShape;
   callback: ToolCallback<ZodRawShape>;
+}
+
+export interface IMCPPrompt {
+  name: string;
+  description: string;
+  argsSchema: ZodRawShape;
+  callback: (args: any, extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => Promise<GetPromptResult>;
 }
 
 export type MCPServerConfig = {
@@ -52,6 +60,7 @@ export interface IMCPClient {
   connect(configs: Record<string, MCPServerConfig>): Promise<void>;
   disconnect(): Promise<void>;
   listTools(): Tool[];
+  listPrompts(): Prompt[];
   getClient(toolName: string): Client | undefined;
 }
 
