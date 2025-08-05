@@ -1,14 +1,12 @@
+import readline from "readline/promises";
 import { MCPClient } from "./client.js";
 import { DEFAULT_PROVIDER } from "../config.js";
-import { IAIProvider } from "../interface.js";
-import { AnthropicProvider } from "./provider/anthropic.js";
-import { GeminiProvider } from "./provider/google.js";
 import { OpenAIProvider } from "./provider/openai.js";
-import readline from "readline/promises";
+import { IAIProvider } from "../interface.js";
+import { GeminiProvider } from "./provider/google.js";
+import { AnthropicProvider } from "./provider/anthropic.js";
 
-const mcpClient = new MCPClient();
-
-async function getProvider(): Promise<IAIProvider> {
+function getProvider(mcpClient: MCPClient): IAIProvider {
   const { provider, model } = DEFAULT_PROVIDER;
 
   switch (provider) {
@@ -23,7 +21,7 @@ async function getProvider(): Promise<IAIProvider> {
   }
 }
 
-export async function chat() {
+export async function startChat(mcpClient: MCPClient) {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
@@ -32,7 +30,7 @@ export async function chat() {
   try {
     while (true) {
       try {
-        const aiProvider = await getProvider();
+        const aiProvider = getProvider(mcpClient);
         const message = await rl.question("Query: ");
         const response = await aiProvider.ask(message);
         console.log("\n" + response);
