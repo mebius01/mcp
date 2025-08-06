@@ -1,6 +1,6 @@
 import { ToolCallback } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { ZodRawShape } from 'zod';
-import { Tool, CallToolResult, GetPromptResult, ServerRequest, ServerNotification, Prompt } from '@modelcontextprotocol/sdk/types.js';
+import { Tool, CallToolResult, GetPromptResult, ReadResourceResult, ServerRequest, ServerNotification, Prompt, Resource } from '@modelcontextprotocol/sdk/types.js';
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 
 import {
@@ -40,6 +40,14 @@ export interface IMCPPrompt {
   callback: (args: any, extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => Promise<GetPromptResult>;
 }
 
+export interface IMCPResource {
+  uri: string;
+  name: string;
+  description: string;
+  mimeType: string;
+  callback: (args: any, extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => Promise<ReadResourceResult>;
+}
+
 export type MCPServerConfig = {
   command: string;
   args?: string[];
@@ -61,6 +69,7 @@ export interface IMCPClient {
   disconnect(): Promise<void>;
   listTools(): Tool[];
   listPrompts(): Prompt[];
+  listResources(): Resource[];
   getClient(toolName: string): Client | undefined;
 }
 

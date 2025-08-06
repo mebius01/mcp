@@ -1,8 +1,8 @@
 import { ServerNotification, ServerRequest, CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
-import { IMCPTool, ProviderName } from "../interface.js";
-import { DEFAULT_PROVIDER, MODELS } from "../config.js";
-import { createZodSchema, formatResponse } from "./utils.js";
+import { IMCPTool, ProviderName } from "../../interface.js";
+import { MODELS, DEFAULT_PROVIDER } from "../../config.js";
+import { createZodSchema, formatResponse } from "../utils.js";
 
 export const TOOLS: IMCPTool[] = [
   {

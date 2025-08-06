@@ -1,7 +1,6 @@
-import { ServerNotification, ServerRequest, GetPromptResult } from "@modelcontextprotocol/sdk/types.js";
-import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
-import { IMCPPrompt } from "../interface.js";
-import { createZodSchema } from "./utils.js";
+import { IMCPPrompt } from "../../interface.js";
+import { createZodSchema } from "../utils.js";
+
 
 export const PROMPTS: IMCPPrompt[] = [
   {
