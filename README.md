@@ -1,18 +1,16 @@
 # MCP-HUB
 
-**MCP-HUB** is a powerful multi-provider Model Context Protocol (MCP) client that enables seamless integration with various AI services and tools through a unified chat interface.
+**MCP-HUB** is a comprehensive multi-provider Model Context Protocol (MCP) client that enables seamless integration with various AI services (OpenAI, Google, Anthropic) and MCP servers (Notion, GitHub, local) through a unified TypeScript chat interface.
 
 ## 🚀 Key Features
 
-- **Multi-AI Provider Support**: OpenAI GPT, Google Gemini, Anthropic Claude
-- **Complete MCP Implementation**: Full support for Tools, Prompts, and Resources
-- **Multi-Server MCP Architecture**: Connections to Notion API, GitHub, and local servers
-- **Interactive CLI**: Convenient command-line interface for AI interaction
-- **Smart Prompts System**: Educational and development-focused prompt templates
-- **TypeScript + Zod**: Full type safety and schema validation
-- **Centralized Configuration**: Easy management of servers and models
-- **Safe Error Handling**: Graceful fallbacks for servers without prompts support
-- **Extensibility**: Simple mechanism for adding new tools, prompts, and providers
+- **Universal MCP Client**: Connect to any MCP-compatible server with unified interface
+- **Multi-AI Provider Support**: OpenAI GPT, Google Gemini, Anthropic Claude with easy switching
+- **Complete MCP Protocol**: Full implementation of Tools, Prompts, and Resources specifications
+- **Type-Safe Architecture**: Full TypeScript support with Zod validation and proper interfaces
+- **Plug-and-Play Integration**: Easy connection to Notion, GitHub, and custom MCP servers
+- **Interactive Development**: CLI interface for testing and development workflows
+- **Enterprise-Grade**: Robust error handling, logging, and configuration management
 
 ## 🏗️ Architecture
 
@@ -28,6 +26,7 @@ The project consists of three main components:
 - **Local MCP Server**: Custom tools and functions implementation
 - **Tool Registration**: MCP-compliant tool definitions
 - **Prompt Registration**: MCP-compliant prompt definitions
+- **Resource Registration**: MCP-compliant resource definitions
 - **Type Safety**: Full TypeScript support with proper interfaces
 
 ### ⚙️ Core Components (`src/`)
@@ -98,8 +97,12 @@ src/
 │       ├── google.ts     # Google Gemini integration
 │       └── anthropic.ts  # Anthropic Claude integration
 └── server/               # Local MCP Server
-    ├── main.ts          # Server entry point
-    └── tools.ts         # Custom MCP tools
+    ├── main.ts           # Server entry point
+    ├── utils.ts          # Server utilities and helpers
+    └── content/          # MCP server content definitions
+        ├── tools.ts      # Custom MCP tools
+        ├── prompts.ts    # MCP prompts for AI assistance
+        └── resources.ts  # MCP resources (config, docs, logs)
 ```
 
 ## ⚙️ Configuration
