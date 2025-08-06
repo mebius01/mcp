@@ -1,7 +1,7 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { IMCPClient, MCPServerConfig } from "../interface.js";
-import { Tool, Prompt } from "@modelcontextprotocol/sdk/types.js";
+import { Tool, Prompt, Resource } from "@modelcontextprotocol/sdk/types.js";
 
 export class MCPClient implements IMCPClient {
   private clients: Record<
@@ -11,16 +11,14 @@ export class MCPClient implements IMCPClient {
       transport: StdioClientTransport;
       tools: Tool[];
       prompts: Prompt[];
+      resources: Resource[];
     }
   > = {};
 
-  private logConnect(name: string, tools: Tool[], prompts: Prompt[]) {
+  private logConnect(name: string, tools: Tool[], prompts: Prompt[], resources: Resource[]) {
+    const resourcesInfo = resources.length > 0 ? `\n📄 Resources: ${resources.map(r => r.name).join(", ")}` : "";
     const promptsInfo = prompts.length > 0 ? `\n💬 Prompts: ${prompts.map(p => p.name).join(", ")}` : "";
-    console.log(`\n\nConnected to ${name} \n⚒️ Tools: ${tools.map(t => t.name).join(", ")}${promptsInfo}`);
-  }
-
-  private logDisconnect(name: string) {
-    console.log(`🔌 Disconnected from "${name}"`);
+    console.log(`\n\nConnected to ${name} \n⚒️ Tools: ${tools.map(t => t.name).join(", ")}${promptsInfo}${resourcesInfo}`);
   }
 
   async connect(configs: Record<string, MCPServerConfig>) {
@@ -49,13 +47,22 @@ export class MCPClient implements IMCPClient {
         const promptsResult = await mcp.listPrompts();
         prompts = promptsResult.prompts || [];
       } catch (error) {
-        console.log(`⚠️  Server "${name}" doesn't support prompts`);
+        console.error(`⚠️  Server "${name}" doesn't support prompts`);
         prompts = [];
       }
 
-      this.clients[name] = { mcp, transport, tools, prompts };
+      let resources: Resource[] = [];
+      try {
+        const resourcesResult = await mcp.listResources();
+        resources = resourcesResult.resources || [];
+      } catch (error) {
+        console.error(`⚠️  Server "${name}" doesn't support resources`);
+        resources = [];
+      }
 
-      this.logConnect(name, tools, prompts);
+      this.clients[name] = { mcp, transport, tools, prompts, resources };
+
+      this.logConnect(name, tools, prompts, resources);
     }
   }
 
@@ -63,7 +70,7 @@ export class MCPClient implements IMCPClient {
     for (const [name, { mcp, transport }] of Object.entries(this.clients)) {
       await mcp.close();
       await transport.close();
-      this.logDisconnect(name);
+      console.log(`🔌 Disconnected from "${name}"`);
     }
     this.clients = {};
   }
@@ -74,6 +81,10 @@ export class MCPClient implements IMCPClient {
 
   listPrompts(): Prompt[] {
     return Object.values(this.clients).flatMap(({ prompts }) => prompts);
+  }
+
+  listResources(): Resource[] {
+    return Object.values(this.clients).flatMap(({ resources }) => resources);
   }
 
   getClient(toolName: string): Client | undefined {
